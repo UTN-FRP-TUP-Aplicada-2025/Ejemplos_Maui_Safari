@@ -16,7 +16,7 @@ public partial class Home : ComponentBase
         if (!firstRender) return;
 
         // (a) Importar main.js y MUTAR el DOM (Materialize/jQuery) sobre nodos que Blazor controla
-        _module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/main.js");
+        _module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/main.js?v=1");
 
         // === A/B TOGGLE para "arreglar" el repro ===
         // Comentá la línea de abajo: sin la mutación JS de Materialize, el batch ya NO rompe en WebKit.
