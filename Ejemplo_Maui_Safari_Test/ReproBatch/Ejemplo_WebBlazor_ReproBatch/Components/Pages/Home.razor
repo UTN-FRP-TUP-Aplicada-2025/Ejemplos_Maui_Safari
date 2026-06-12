@@ -1,0 +1,49 @@
+@page "/"
+@rendermode InteractiveServer
+
+<h1>Repro batch (WebKit)</h1>
+
+<!-- Trigger del sidenav -->
+<a href="#" data-target="slide-nav" class="sidenav-trigger">Menu</a>
+
+<div class="container" id="reproRoot">
+
+    @* === Nodos que Materialize MOVERÁ. DEBEN existir desde el primer render (fuera del @if isLoading) === *@
+    <ul id="slide-nav" class="sidenav sidemenu">
+        <li><a href="#">Item 1</a></li>
+        <li><a href="#">Item 2</a></li>
+    </ul>
+
+    <div class="input-field">
+        <select>
+            <option value="" disabled selected>Elegí una opción</option>
+            <option value="1">Uno</option>
+            <option value="2">Dos</option>
+        </select>
+    </div>
+
+    @* === Región que togglea con isLoading, en el MISMO padre que los nodos de arriba === *@
+    @if (isLoading)
+    {
+        <div class="col s12" style="mix-blend-mode: color-burn;">
+            <p>Cargando… (placeholder)</p>
+        </div>
+    }
+    else
+    {
+        <div class="col s12">
+            <h5>Contenido real</h5>
+            <ul class="collection">
+                @foreach (var s in servicios)   @* sin @key a propósito: agrava el reordenamiento *@
+                {
+                    <li class="collection-item">@s</li>
+                }
+            </ul>
+        </div>
+    }
+</div>
+
+@* Modal Materialize (otro nodo que M.AutoInit relocaliza) *@
+<div id="reproModal" class="modal">
+    <div class="modal-content"><p>Modal</p></div>
+</div>
