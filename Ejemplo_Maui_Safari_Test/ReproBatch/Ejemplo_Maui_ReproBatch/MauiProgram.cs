@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Core;
+
 using Microsoft.Extensions.Logging;
 
 namespace Ejemplo_Maui_ReproBatch;
@@ -21,7 +22,7 @@ public static class MauiProgram
             });
 
 #if DEBUG
-		builder.Logging.AddDebug();
+		builder.Logging.AddDebug(); 
 #endif
 
         return builder.Build();
