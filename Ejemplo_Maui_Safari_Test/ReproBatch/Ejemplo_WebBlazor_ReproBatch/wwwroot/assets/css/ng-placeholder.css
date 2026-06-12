@@ -1,0 +1,30 @@
+﻿
+.ngplaceholder {
+    background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 4px;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.ngplaceholder-text {
+    height: 38px;
+    margin-bottom: 1rem;
+}
+
+.ngplaceholder-label {
+    width: 40%;
+    height: 16px;
+    margin-bottom: 8px;
+    border-radius: 2px;
+}
+

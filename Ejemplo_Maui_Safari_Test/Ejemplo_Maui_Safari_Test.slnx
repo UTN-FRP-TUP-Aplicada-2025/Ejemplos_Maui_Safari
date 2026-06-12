@@ -3,7 +3,9 @@
     <File Path="../.github/workflows/cd-ios-reprobatch-Ejemplo_Maui_ReproBatch.yml" />
   </Folder>
   <Folder Name="/ReproBatch/">
-    <Project Path="ReproBatch/Ejemplo_Maui_ReproBatch/Ejemplo_Maui_ReproBatch.csproj" />
+    <Project Path="ReproBatch/Ejemplo_Maui_ReproBatch/Ejemplo_Maui_ReproBatch.csproj">
+      <Deploy />
+    </Project>
     <Project Path="ReproBatch/Ejemplo_WebBlazor_ReproBatch/Ejemplo_WebBlazor_ReproBatch.csproj" />
   </Folder>
 </Solution>

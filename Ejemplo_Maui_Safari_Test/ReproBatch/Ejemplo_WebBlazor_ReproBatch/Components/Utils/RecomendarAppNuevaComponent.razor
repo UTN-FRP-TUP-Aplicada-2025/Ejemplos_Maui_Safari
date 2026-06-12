@@ -1,0 +1,294 @@
+﻿
+@inject IJSRuntime JS
+
+<div>
+
+    <style>
+        .update-fab {
+            position: fixed;
+            right: 21px;
+            bottom: 120px;
+            width: 40px;
+            height: 40px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+            cursor: pointer;
+            z-index: 998;
+            overflow: hidden;
+            transition: width 0.35s ease, height 0.35s ease, border-radius 0.35s ease, padding 0.35s ease, background 0.2s ease;
+        }
+
+        .update-fab.expanded {
+            width: min(360px, calc(100vw - 32px));
+            border-radius: 24px;
+            padding: 0 18px;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        .update-fab-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+
+        .update-fab-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: rgba(255,255,255,0.95);
+        }
+
+        .update-fab.expanded .update-fab-icon {
+            display: none;
+        }
+
+        .update-content {
+            display: none;
+            align-items: center;
+            width: 100%;
+            color: white;
+        }
+
+        .update-fab.expanded .update-content {
+            display: flex;
+        }
+
+        .update-left-icon {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.14);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 14px;
+        }
+
+        .update-left-icon svg {
+            width: 22px;
+            height: 22px;
+            stroke: rgba(255,255,255,0.95);
+        }
+
+        .update-text {
+            flex: 1;
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.25;
+        }
+
+        .update-close {
+            margin-left: 14px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.95);
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.2s ease;
+            font-size: 18px;
+        }
+
+        .update-close:hover {
+            background: rgba(255,255,255,0.12);
+        }
+    </style>
+    <script>
+            window.toggleModalOverlay = (display) => {
+                const overlay = document.getElementById("modalOverlay");
+
+                if (overlay) {
+                    overlay.style.display = display;
+                }
+            };
+    </script>
+    <div class="modal-overlay" id="modalOverlay" style="z-index: 1002; display: none; opacity: 0.5;"></div>
+    <div id="updateFab"
+         class="update-fab @(Expanded ? "expanded" : "")"
+         style="@(!Visible ? "display:none;" : "display:flex;")"
+         @onclick="OnFabClick">
+
+        <div class="update-fab-icon">
+
+            <svg viewBox="0 0 24 24"
+                 fill="none"
+                 stroke-width="2.2"
+                 stroke-linecap="round"
+                 stroke-linejoin="round">
+
+                <path d="M12 3v10"></path>
+                <path d="M8 9l4 4 4-4"></path>
+                <path d="M4 17v3h16v-3"></path>
+
+            </svg>
+
+        </div>
+
+        <div class="update-content">
+
+            <div class="update-left-icon">
+
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke-width="2.2"
+                     stroke-linecap="round"
+                     stroke-linejoin="round">
+
+                    <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7"></path>
+                    <path d="M13.73 21a2 2 0 01-3.46 0"></path>
+
+                </svg>
+
+            </div>
+
+            <div class="update-text"
+                 @onclick:stopPropagation="true"
+                 @onclick="AbrirModal">
+                ¡Hay una nueva versión disponible de la App!
+            </div>
+
+            <div class="update-close"
+                 @onclick:stopPropagation="true"
+                 @onclick="Collapse">
+                ✕
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="modalNuevaApp"
+         class="modal modal-fixed-footer @(ModalAbierto ? "open" : "")"
+         tabindex="0"
+         style="
+            z-index: 1003;
+            display:@(ModalAbierto ? "block" : "none");
+            opacity:@(ModalAbierto ? "1" : "0");
+            top:4%;
+            transform:@(ModalAbierto ? "scaleX(1) scaleY(1)" : "scaleX(0.8) scaleY(0.8)");
+         ">
+
+        <AppNuevaNovedadesComponent
+            Novedades="@Novedades"
+            AppSistemaOperativo="@AppSistemaOperativo"
+            LinkStore="@LinkStore" />
+
+        <div class="modal-footer">
+
+            <a href="#!"
+               class="modal-close waves-effect waves-red btn-flat"
+               @onclick="CerrarModal">
+                Más tarde
+            </a>
+
+            <a href="@($"{LinkStore}&target=browser")"
+               class="waves-effect waves-light btn theme-bg-btn">
+                Actualizar App
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+
+    [Parameter]
+    public string Novedades { get; set; }
+
+    [Parameter]
+    public string AppSistemaOperativo { get; set; }
+
+    [Parameter]
+    public string LinkStore { get; set; }
+
+    private bool Expanded;
+
+    private bool Visible;
+
+    private bool ModalAbierto;
+
+    private CancellationTokenSource _collapseToken;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        await Task.Delay(2000);
+
+        Visible = true;
+
+        StateHasChanged();
+
+        await Task.Delay(500);
+
+        await Expand();
+    }
+
+    private async Task OnFabClick()
+    {
+        if (!Expanded)
+            await Expand();
+    }
+
+    private async Task Expand()
+    {
+        Expanded = true;
+
+        StateHasChanged();
+
+        _collapseToken?.Cancel();
+
+        _collapseToken = new CancellationTokenSource();
+
+        try
+        {
+            await Task.Delay(5000, _collapseToken.Token);
+
+            await Collapse();
+        }
+        catch
+        {
+        }
+    }
+
+    private Task Collapse()
+    {
+        Expanded = false;
+
+        StateHasChanged();
+
+        return Task.CompletedTask;
+    }
+
+    private async Task AbrirModal()
+    {
+        ModalAbierto = true;
+
+        await JS.InvokeVoidAsync("toggleModalOverlay", "block");
+
+        StateHasChanged();
+    }
+
+    private async Task CerrarModal()
+    {
+        ModalAbierto = false;
+
+        await JS.InvokeVoidAsync("toggleModalOverlay", "none");
+
+        StateHasChanged();
+    }
+}

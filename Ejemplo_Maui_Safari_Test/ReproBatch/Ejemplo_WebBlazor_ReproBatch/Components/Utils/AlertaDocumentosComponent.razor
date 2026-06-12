@@ -1,0 +1,265 @@
+﻿@implements IDisposable
+
+<style>
+	.profile-card {
+		overflow: hidden;
+		transition: max-height 0.45s ease, opacity 0.35s ease, transform 0.35s ease, margin 0.35s ease, padding 0.35s ease;
+		max-height: 2000px;
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+		.profile-card.closing {
+			max-height: 0;
+			opacity: 0;
+			transform: translateY(-20px);
+			margin-top: 0 !important;
+			margin-bottom: 0 !important;
+			padding-top: 0 !important;
+			padding-bottom: 0 !important;
+			border: none !important;
+		}
+
+	.boton-cerrar {
+		position: absolute;
+		top: 12px;
+		right: 12px;
+		width: 32px;
+		height: 32px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 50%;
+		color: #667085;
+		text-decoration: none;
+		transition: background 0.2s;
+		z-index: 501;
+	}
+
+		.boton-cerrar:hover {
+			background: rgba(0,0,0,0.05);
+			color: #111827;
+		}
+
+	.ticket-row {
+		background: #ffffff;
+		border: 1px solid #e5e7eb;
+		border-radius: 6px;
+		padding: 10px 15px;
+		margin-bottom: 8px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+	}
+</style>
+
+@if (!isHidden)
+{
+	@if (TipoAlerta == "Pagos" && DtPagosPendientes != null)
+	{
+		<div class="card card-body profile-card @(isClosing ? "closing" : "")" style="position:relative;margin-top:0 !important;background:#fafbff;box-shadow:0 3px 10px rgba(0,0,0,0.06);">
+			<a href="javascript:void(0)" " @onclick="CerrarTarjeta" @onclick:preventDefault="true" class="boton-cerrar">
+				<i class="fas fa-times"></i>
+			</a>
+			<div class="container">
+				<div class="row mb0 mt0">
+					<div class="col s12 pad-0">
+						<h5 class="sec-tit">
+							<i class="fas fa-file-invoice-dollar"></i>
+							Pagos Pendientes
+						</h5>
+					</div>
+				</div>
+				<div class="row mb3 mt0">
+					<div class="col s12" style="color:#555; line-height:1.5;">
+						Hay @(DtPagosPendientes.Rows.Count) tickets esperando confirmación de pago.
+					</div>
+				</div>
+				<div class="row" style="padding-top: 5px; margin-bottom: 0;">
+					<div class="col s12">
+						@foreach (System.Data.DataRow pagos in DtPagosPendientes.Rows)
+						{
+							string id = pagos["Id"].ToString();
+							<div class="ticket-row">
+								<div style="color: #374151; font-size: 14px;">Ticket <b>n° @id</b></div>
+								<a href="#" @onclick="() => RedireccionarPagos(id)" @onclick:preventDefault="true" style="color: var(--primary-color); font-weight: 600; font-size: 13px; text-decoration: none;">
+									Ir al pago <i class="fas fa-arrow-right" style="margin-left: 4px; font-size: 11px;"></i>
+								</a>
+							</div>
+						}
+					</div>
+				</div>
+				<div class="row" style="padding-top: 15px; padding-bottom: 5px; margin-bottom: 0;">
+					<div class="col s12" style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 700; color: #111827; border-top: 1px solid #e5e7eb; padding-top: 10px;">
+						<span>Total adeudado</span>
+						<span>$@TotalPagos</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+
+	@if (TipoAlerta == "Tickets" && DtDocumentosPendientes != null)
+	{
+		<div class="card card-body profile-card @(isClosing ? "closing" : "")" style="position:relative;margin-top:0 !important;background:#fafbff;box-shadow:0 3px 10px rgba(0,0,0,0.06);">
+			<a href="javascript:void(0)" " @onclick="CerrarTarjeta" @onclick:preventDefault="true" class="boton-cerrar">
+				<i class="fas fa-times"></i>
+			</a>
+			<div class="container">
+				<div class="row mb0 mt0">
+					<div class="col s12 pad-0">
+						<h5 class="sec-tit">
+							<i class="fas fa-file-upload"></i>
+							Documentación pendiente
+						</h5>
+					</div>
+				</div>
+				<div class="row mb3 mt0">
+					<div class="col s12" style="color:#555; line-height:1.5;">
+						Hay @(DtDocumentosPendientes.Rows.Count) tickets con documentación pendiente.
+					</div>
+				</div>
+				<div class="row" style="padding-top: 5px; margin-bottom: 0;">
+					<div class="col s12">
+						@foreach (System.Data.DataRow ticket in DtDocumentosPendientes.Rows)
+						{
+							string id = ticket["Id"].ToString();
+							string UrlRedireccion = $"GestionDetalle?Id={id}";
+							<div class="ticket-row">
+								<div style="color: #374151; font-size: 14px;">Ticket <b>n° @id</b></div>
+								<a href="#" @onclick="() => Redireccionar(UrlRedireccion)" @onclick:preventDefault="true" style="color: var(--primary-color); font-weight: 600; font-size: 13px; text-decoration: none;">
+									Ir al ticket <i class="fas fa-arrow-right" style="margin-left: 4px; font-size: 11px;"></i>
+								</a>
+							</div>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+
+	@if (TipoAlerta == "Comercio" && DtDocumentosPendientes != null)
+	{
+		<div class="card card-body profile-card @(isClosing ? "closing" : "")" style="position:relative;margin-top:0 !important;background:#fafbff;box-shadow:0 3px 10px rgba(0,0,0,0.06);">
+			<a href="javascript:void(0)" " @onclick="CerrarTarjeta" @onclick:preventDefault="true" class="boton-cerrar">
+				<i class="fas fa-times"></i>
+			</a>
+			<div class="container">
+				<div class="row mb0 mt0">
+					<div class="col s12 pad-0">
+						<h5 class="sec-tit">
+							<i class="fas fa-store"></i>
+							Documentación pendiente
+						</h5>
+					</div>
+				</div>
+				<div class="row mb3 mt0">
+					<div class="col s12" style="color:#555; line-height:1.5;">
+						Tenés documentación pendiente de @(DtDocumentosPendientes.Rows.Count) comercio/s.
+					</div>
+				</div>
+				<div class="row" style="padding-top: 5px; margin-bottom: 0;">
+					<div class="col s12">
+						@foreach (System.Data.DataRow comercios in DtDocumentosPendientes.Rows)
+						{
+							string id = comercios["Id"].ToString();
+							string UrlRedireccion = $"Comercio?Id={id}";
+							<div class="ticket-row">
+								<div style="color: #374151; font-size: 14px;">Comercio <b>n° @id</b></div>
+								<a href="#" @onclick="() => Redireccionar(UrlRedireccion)" @onclick:preventDefault="true" style="color: var(--primary-color); font-weight: 600; font-size: 13px; text-decoration: none;">
+									Ir al comercio <i class="fas fa-arrow-right" style="margin-left: 4px; font-size: 11px;"></i>
+								</a>
+							</div>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+
+	@if (TipoAlerta == "AltaProfesional" && DtDocumentosPendientes != null)
+	{
+		<div class="card card-body profile-card @(isClosing ? "closing" : "")" style="position:relative;margin-top:0 !important;background:#fafbff;box-shadow:0 3px 10px rgba(0,0,0,0.06);">
+			<a href="javascript:void(0)" @onclick="CerrarTarjeta" @onclick:preventDefault="true" class="boton-cerrar">
+				<i class="fas fa-times"></i>
+			</a>
+			<div class="container">
+				<div class="row mb0 mt0">
+					<div class="col s12 pad-0">
+						<h5 class="sec-tit">
+							<i class="fas fa-user-tie"></i>
+							Documentación Pendiente
+						</h5>
+					</div>
+				</div>
+				<div class="row mb3 mt0">
+					<div class="col s12" style="color:#555; line-height:1.5;">
+						Tenés documentación requerida pendiente de alta como profesional.
+					</div>
+				</div>
+				<div class="row" style="padding-top: 5px; margin-bottom: 0;">
+					<div class="col s12">
+						@foreach (System.Data.DataRow perfil in DtDocumentosPendientes.Rows)
+						{
+							string UrlRedireccion = "ObrasParticulares";
+							<div class="ticket-row">
+								<div style="color: #374151; font-size: 14px;">Perfil Profesional</div>
+								<a href="#" @onclick="() => Redireccionar(UrlRedireccion)" @onclick:preventDefault="true" style="color: var(--primary-color); font-weight: 600; font-size: 13px; text-decoration: none;">
+									Ir al perfil <i class="fas fa-arrow-right" style="margin-left: 4px; font-size: 11px;"></i>
+								</a>
+							</div>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+@code {
+	[Parameter] public System.Data.DataTable? DtDocumentosPendientes { get; set; }
+	[Parameter] public System.Data.DataTable? DtPagosPendientes { get; set; }
+	[Parameter] public string TipoAlerta { get; set; } = "";
+	[Parameter] public decimal? TotalPagos { get; set; }
+
+	private bool isClosing = false;
+	private bool isDisposed = false;
+	private bool isHidden = false;
+
+	private async Task CerrarTarjeta()
+	{
+		if (isClosing) return;
+
+		isClosing = true;
+		StateHasChanged();
+
+		try
+		{
+			await Task.Delay(450);
+			if (!isDisposed)
+			{
+				isHidden = true;
+			}
+		}
+		catch (TaskCanceledException ex)
+		{
+			Console.WriteLine(ex.Message);
+		}
+	}
+
+	public void Dispose()
+	{
+		isDisposed = true;
+	}
+
+	private void Redireccionar(string url)
+	{
+		_NavigationM.NavigateTo(url, true);
+	}
+
+	private void RedireccionarPagos(string id)
+	{
+		_NavigationM.NavigateTo($"GestionDetalle?id={id}", true);
+	}
+}

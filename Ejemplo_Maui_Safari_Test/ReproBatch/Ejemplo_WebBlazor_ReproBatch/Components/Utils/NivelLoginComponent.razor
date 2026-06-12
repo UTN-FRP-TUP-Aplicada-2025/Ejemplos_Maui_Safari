@@ -1,0 +1,327 @@
+﻿@inject NavigationManager _Navigation
+@inject IJSRuntime JSRuntime
+
+<style>
+
+	.profile-card {
+		overflow: hidden;
+		transition: max-height 0.45s ease, opacity 0.35s ease, transform 0.35s ease, margin 0.35s ease, padding 0.35s ease;
+		max-height: 1000px;
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+		.profile-card.closing {
+			max-height: 0;
+			opacity: 0;
+			transform: translateY(-20px);
+			margin-top: 0 !important;
+			margin-bottom: 0 !important;
+			padding-top: 0 !important;
+			padding-bottom: 0 !important;
+		}
+
+	.boton-cerrar {
+		position: absolute;
+		top: 12px;
+		right: 12px;
+		width: 32px;
+		height: 32px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 50%;
+		color: #667085;
+		text-decoration: none;
+		transition: background 0.2s;
+		z-index: 501;
+	}
+</style>
+
+<script>
+
+	function closeProfileCard() {
+
+		const card = document.getElementById("CompletarPerfil");
+
+		card.classList.add("closing");
+
+		setTimeout(() => {
+			card.style.display = "none";
+		}, 450);
+	}
+
+</script>
+
+
+<div id="CompletarPerfil"
+	 class="card card-body profile-card"
+	 style="position:relative;margin-top:0 !important;background:#fafbff;box-shadow:0 3px 10px rgba(0,0,0,0.06);">
+	<a href="#"
+	   onclick="closeProfileCard(); return false;"
+	   class="boton-cerrar">
+		<i class="fas fa-times"></i>
+	</a>
+	<div class="container">
+
+		<!-- TITULO -->
+		<div class="row mb0 mt0">
+			<div class="col s12 pad-0">
+				<h5 class="sec-tit">
+					<i class="fas fa-user-check"></i>
+					Completá tu perfil
+				</h5>
+			</div>
+		</div>
+
+		<!-- DESCRIPCION -->
+		<div class="row mb3 mt0">
+			<div class="col s12"
+				 style="
+				color:#555;
+				line-height:1.5;">
+				Accedé a más funcionalidades validando tu información.
+			</div>
+		</div>
+
+		<!-- NIVELES -->
+		<div class="row"
+			 style="
+			padding-top: 10px;
+			margin-bottom: 0;
+			text-align:center;
+			">
+
+			<!-- NIVEL BASICO -->
+			<div class="col s8">
+
+				<div style="
+					font-size:13px;
+					font-weight:700;
+					color:var(--primary-color);
+					text-transform:uppercase;
+					letter-spacing:0.5px;
+
+					height:38px;
+					display:flex;
+					align-items:center;
+					justify-content:center;
+					text-align:center;
+
+					margin-bottom:14px;
+					">
+					Nivel 1 Básico
+				</div>
+
+				<div style="
+					display:flex;
+					justify-content:space-evenly;
+					">
+
+					<!-- EMAIL -->
+					<div>
+
+						<div style="
+							position:relative;
+							width:64px;
+							height:64px;
+							border-radius:50%;
+							display:flex;
+							align-items:center;
+							justify-content:center;
+							margin:0 auto 12px auto;
+							@(GetCircleStyle(EmailValidado))
+							">
+
+							<i class="fas fa-envelope"
+							   style="
+							font-size:24px;
+							@(GetIconStyle(EmailValidado))
+							"></i>
+
+							@if (EmailValidado)
+							{
+								<div style="
+									position:absolute;
+									bottom:-2px;
+									right:-2px;
+									width:22px;
+									height:22px;
+									border-radius:50%;
+									background:white;
+									display:flex;
+									align-items:center;
+									justify-content:center;
+									box-shadow:0 2px 6px rgba(0,0,0,0.15);
+									">
+									<i class="fas fa-check"
+									   style="
+									color:#16a34a;
+									font-size:11px;
+									"></i>
+								</div>
+							}
+
+						</div>
+
+						<div style="@GetTextStyle(EmailValidado)">
+							Email
+						</div>
+
+					</div>
+
+					<!-- 2FA -->
+					<div>
+
+						<div style="
+							width:64px;
+							height:64px;
+							border-radius:50%;
+							display:flex;
+							align-items:center;
+							justify-content:center;
+							margin:0 auto 12px auto;
+							@(GetCircleStyle(TelefonoValidado))
+							">
+
+							<i class="fas fa-shield-alt"
+							   style="
+							font-size:24px;
+							@(GetIconStyle(TelefonoValidado))
+							"></i>
+
+						</div>
+
+						<div style="@GetTextStyle(TelefonoValidado)">
+							2FA
+						</div>
+
+					</div>
+
+				</div>
+			</div>
+
+			<!-- NIVEL COMPLETO -->
+			<div class="col s4">
+
+				<div style="
+					font-size:13px;
+					font-weight:700;
+					color:#667085;
+					text-transform:uppercase;
+					letter-spacing:0.5px;
+
+					height:38px;
+					display:flex;
+					align-items:center;
+					justify-content:center;
+					text-align:center;
+
+					margin-bottom:14px;
+					">
+					Nivel 1 Completo
+				</div>
+
+				<div>
+
+					<div style="
+						width:64px;
+						height:64px;
+						border-radius:50%;
+						display:flex;
+						align-items:center;
+						justify-content:center;
+						margin:0 auto 12px auto;
+						@(GetCircleStyle(Nivel1Completo))
+						">
+
+						<i class="fas fa-id-card"
+						   style="
+						font-size:24px;
+						@(GetIconStyle(Nivel1Completo))
+						"></i>
+
+					</div>
+
+					<div style="@GetTextStyle(Nivel1Completo)">
+						Datos
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+
+		<div class="row"
+			 style="
+			padding-bottom: 1rem;
+			padding-top: 1.2rem;
+			">
+
+			<div class="col s12">
+
+				<a href="#"
+				   class="waves-effect waves-light btn theme-bg-btn"
+				   style="width:100%;" @onclick="OnIrActualizar">
+
+					<i class="fas fa-user-edit"></i>
+					&nbsp;
+					Completar perfil
+
+				</a>
+
+			</div>
+
+		</div>
+
+	</div>
+</div>
+
+@code {
+
+	[Parameter]
+	public bool EmailValidado { get; set; }
+
+	[Parameter]
+	public bool TelefonoValidado { get; set; }
+
+	[Parameter]
+	public bool Nivel1Completo { get; set; }
+
+
+	string GetCircleStyle(bool completo) =>
+		completo
+			? "background:var(--primary-color); box-shadow:0 4px 10px rgba(var(--primary-rgb),0.25);"
+			: "background:#eceff3; border:2px dashed #cbd5e1;";
+
+	string GetIconStyle(bool completo) =>
+		completo
+			? "color:white;"
+			: "color:#98a2b3;";
+
+	string GetTextStyle(bool completo) =>
+		completo
+			? "font-weight:700;font-size:14px;color:#111827;"
+			: "font-weight:700;font-size:14px;color:#666;";
+
+	
+	async Task OnIrActualizar()
+	{
+		await JSRuntime.InvokeVoidAsync("closeProfileCard");
+		if (!EmailValidado)
+		{
+			_Navigation.NavigateTo("ConfigurarEmail?modo=wizard", true);
+			return;
+		}
+		else if (!TelefonoValidado)
+		{
+			_Navigation.NavigateTo("Configurar2FA?modo=wizard", true);
+			return;
+		}
+		else if (!Nivel1Completo)
+		{
+			_Navigation.NavigateTo("PerfilEdit?modo=wizard", true);
+			return;
+		}
+	}
+}

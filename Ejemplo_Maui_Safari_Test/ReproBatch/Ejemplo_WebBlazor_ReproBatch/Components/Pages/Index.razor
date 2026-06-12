@@ -1,0 +1,1042 @@
+﻿
+@page "/Index"
+
+@page "/"
+
+@layout MainLayoutBasic
+
+@inject IJSRuntime JS
+
+@* @attribute [StreamRendering] *@
+@rendermode InteractiveServer
+@using System.Data;
+@using Ejemplo_WebBlazor_ReproBatch.Components.Utils
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.JSInterop
+@inject NavigationManager _Navigation
+
+
+<link href="assets/css/ng-placeholder.css?v=@version" type="text/css" rel="stylesheet" />
+
+<style>
+    .carousel-container {
+        position: relative;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        overflow: hidden;
+        touch-action: pan-y; /* Permitir gestos horizontales */
+        height: 500px;
+    }
+
+    .carousel-track {
+        display: flex;
+        transition: transform 0.4s ease-in-out;
+        width: 100%;
+        height: 400px;
+    }
+
+    .carousel-item {
+        flex: 0 0 100%;
+        position: relative;
+    }
+
+        .carousel-item img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+
+    .item-description {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 10px;
+        text-align: center;
+    }
+
+    .carousel-indicators {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+    }
+
+    .indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+    }
+
+        .indicator.active {
+            background-color: white;
+        }
+
+    .carousel-control {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.3);
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        cursor: pointer;
+        font-size: 20px;
+    }
+
+    .cv {
+        left: 10px;
+    }
+
+    .next {
+        right: 10px;
+    }
+</style>
+@if (RecomiendaActualizarAPP)
+{
+    <RecomendarAppNuevaComponent Novedades="@AppNuevaNovedades"
+                                 AppSistemaOperativo="@AppNuevaAppSistemaOperativo"
+                                 LinkStore="@AppNuevaLinkStore" />
+}
+
+
+<div class="pagehead-bg primary-bg">
+</div>
+
+<div class="container has-pagehead is-pagetitle">
+    <div class="section">
+        <div class="row pagetitle">
+
+            @if (isLoading)
+            {
+                <div class="col s12" style="mix-blend-mode: color-burn;">
+
+                    <div class="ngplaceholder ngplaceholder-label"></div>
+                    <div class="ngplaceholder ngplaceholder-text"></div>
+
+                </div>
+            }
+            else
+            {
+                <div class="col s3">
+                    <img src="assets/images/logo2.png?v=@version" style="height: 70px;" />
+                </div>
+                <div class="col s9">
+
+                    <h5>Hola Nombre!</h5>
+
+                </div>
+                if (NivelUsuario == 0)
+                {
+                    <div class="col s9" style="text-transform: none">
+                        <div>
+                            <b>Nivel de Usuario: Inicial</b>
+                        </div>
+                    </div>
+                }
+                if (NivelUsuario == 1 && !Nivel1Completo)
+                {
+                    <div class="col s9" style="text-transform: none">
+                        <div>
+                            <b>Nivel de Usuario: Básico incompleto</b>
+                        </div>
+                    </div>
+                }
+            }
+
+        </div>
+    </div>
+</div>
+
+<div style="background: #ece8e8; min-height:100vh">
+
+    <div class="container">
+        @if (hasBotonPanico)
+        {
+            <div id="BotonPanico" style="margin-top: 0px !important; background-color: #43096D" class="card card-body">
+
+                <div class="row">
+
+                    <div class="col s12">
+                        <a @onclick="OnClickGenero"><img style="width:100%" src="assets/images/violencia-genero.png" /></a>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+
+        @if (MuestraNivelLoginEnIndex)
+        {
+            @if (isLoading)
+            {
+
+                <div id="CompletarPerfil" style="margin-top: 0px !important;" class="card card-body">
+                    <div class="container">
+
+                        <div class="row mb3 mt0">
+                            <div class="col s12 pad-0">
+                                <h5 class="sec-tit  "></h5>
+                                <span></span>
+                            </div>
+                        </div>
+                        <div class="row">
+
+                            <div class="col-lg-12" style="padding:15px">
+
+                                <div class="ngplaceholder ngplaceholder-label"></div>
+                                <div class="ngplaceholder ngplaceholder-text"></div>
+
+                                <div class="ngplaceholder ngplaceholder-label"></div>
+                                <div class="ngplaceholder ngplaceholder-text"></div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <NivelLoginComponent EmailValidado="@EmailValidado" TelefonoValidado="@TelefonoValidado" Nivel1Completo="@Nivel1Completo"></NivelLoginComponent>
+            }
+
+        }
+
+        @if (Pendiente2FA && Muestra2FAEnIndex)
+        {
+            @if (isLoading)
+            {
+
+                <div id="2fa" style="margin-top: 0px !important;" class="card card-body">
+                    <div class="container">
+
+                        <div class="row mb3 mt0">
+                            <div class="col s12 pad-0">
+                                <h5 class="sec-tit  "><i class="fas fa-shield"></i> 2FA Pendiente</h5>
+                                <span></span>
+                            </div>
+                        </div>
+                        <div class="row">
+
+                            <div class="col-lg-12" style="padding:15px">
+
+                                <div class="ngplaceholder ngplaceholder-label"></div>
+                                <div class="ngplaceholder ngplaceholder-text"></div>
+
+                                <div class="ngplaceholder ngplaceholder-label"></div>
+                                <div class="ngplaceholder ngplaceholder-text"></div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div id="2FA" style="
+                    margin-top: 0 !important;
+                    border-left: 8px solid red;
+                    background: #fafbff;
+                    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+                    " class="card card-body">
+
+                    <div class="container">
+
+                        <div class="row mb0 mt0">
+                            <div class="col s12 pad-0">
+                                <h5 class="sec-tit  "><i class="fas fa-shield"></i> 2FA Pendiente</h5>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row mb3 mt0">
+                        <div class="col s12">
+                            Tenés pendiente habilitar el Segundo Factor de Autenticación (2FA).<br>
+                            Hacelo y accedé a más funcionalidades.
+                        </div>
+                    </div>
+
+
+                    <div style="padding-bottom: 1rem; padding-top: 0.5rem;" class="row">
+                        <div class="col s12">
+                            <a style="width: 100%" href="#" class="waves-effect waves-light btn theme-bg-btn" @onclick="OnClickIr2FA"><i class="fas fa-shield"></i>&nbsp; Configurar 2FA Ahora</a>
+                        </div>
+                    </div>
+
+                </div>
+            }
+
+        }
+
+        @if (isLoading)
+        {
+            <div style="margin-top: 0px !important;" class="card card-body">
+                <div class="container">
+                    <div class="row mb3 mt0">
+                        <div class="col s12 pad-0">
+                            <div class="ngplaceholder ngplaceholder-label" style="width: 50%; height: 20px; margin-bottom: 10px;"></div>
+                            <div class="ngplaceholder ngplaceholder-text" style="width: 80%; height: 15px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 0px !important;" class="card card-body">
+                <div class="container">
+                    <div class="row mb3 mt0">
+                        <div class="col s12 pad-0">
+                            <div class="ngplaceholder ngplaceholder-label" style="width: 50%; height: 20px; margin-bottom: 10px;"></div>
+                            <div class="ngplaceholder ngplaceholder-text" style="width: 80%; height: 15px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            @if (dtPagosPendientes != null && dtPagosPendientes.Rows.Count > 0)
+            {
+                <AlertaDocumentosComponent TipoAlerta="Pagos" DtPagosPendientes="@dtPagosPendientes" TotalPagos="@totalPagos" />
+            }
+
+            @if (dtDocumentosPendientes != null && dtDocumentosPendientes.Rows.Count > 0)
+            {
+                <AlertaDocumentosComponent TipoAlerta="Tickets" DtDocumentosPendientes="@dtDocumentosPendientes" />
+            }
+
+            @if (dtDocumentosPendientesComercio != null && dtDocumentosPendientesComercio.Rows.Count > 0)
+            {
+                <AlertaDocumentosComponent TipoAlerta="Comercio" DtDocumentosPendientes="@dtDocumentosPendientesComercio" />
+            }
+
+            @if (dtDocumentosPendientesProfesional != null && dtDocumentosPendientesProfesional.Rows.Count > 0)
+            {
+                <AlertaDocumentosComponent TipoAlerta="AltaProfesional" DtDocumentosPendientes="@dtDocumentosPendientesProfesional" />
+            }
+        }
+
+        <div id="Principales" style="margin-top: 0px !important;" class="card card-body">
+
+            <div class="container">
+
+                <div class="row mb0 mt0">
+                    <div class="col s12 pad-0">
+                        <h5 class="sec-tit  ">App Ciudadano</h5>
+                    </div>
+                </div>
+
+            </div>
+
+            @if (isLoading)
+            {
+                <div class="row">
+
+                    <div class="col-lg-12" style="padding:15px">
+
+                        <div class="ngplaceholder ngplaceholder-label"></div>
+                        <div class="ngplaceholder ngplaceholder-text"></div>
+
+                        <div class="ngplaceholder ngplaceholder-label"></div>
+                        <div class="ngplaceholder ngplaceholder-text"></div>
+
+                    </div>
+
+                </div>
+            }
+            else
+            {
+                <ul class="subpages collection">
+
+                    @if (hasReclamos)
+                    {
+                        <li class="collection-item">
+                            <a href="#" class="waves-effect" @onclick='() => JS.InvokeVoidAsync("gdaNavigate", "Reclamos")'
+                               @onclick:preventDefault>
+                                <i class="fas fa-comment-dots"></i>
+                                <span>Descripcion</span>
+                                <i class="arrow mdi mdi-chevron-right"></i>
+                            </a>
+                        </li>
+                    }
+                    @if (hasTurnos)
+                    {
+                        <li class="collection-item">
+                            <a href="#" class="waves-effect" @onclick='() => JS.InvokeVoidAsync("gdaNavigate", "Turnos")'
+                               @onclick:preventDefault><i class="fas fa-calendar"></i><span>Turnos</span><i class="arrow mdi mdi-chevron-right"></i></a>
+                        </li>
+                    }
+                    @if (hasDenuncias)
+                    {
+                        <li class="collection-item">
+                            <a href="#" class="waves-effect" @onclick='() => JS.InvokeVoidAsync("gdaNavigate", "denuncias")'
+                               @onclick:preventDefault><i class="fas fa-balance-scale"></i><span>Denuncias</span><i class="arrow mdi mdi-chevron-right"></i></a>
+                        </li>
+                    }
+                    @if (hasSeguridadCiudadana)
+                    {
+                        <li class="collection-item">
+                            <a href="#" class="waves-effect" @onclick='() => JS.InvokeVoidAsync("gdaNavigate", "SeguridadCiudadana")'
+                               @onclick:preventDefault><i class="fas fa-user-shield"></i><span>Seguridad Ciudadana</span><i class="arrow mdi mdi-chevron-right"></i></a>
+                        </li>
+                    }
+
+                    @if (hasDefensaConsumidor)
+                    {
+                        <li class="collection-item">
+                            <a href="#" class="waves-effect" @onclick='() => JS.InvokeVoidAsync("gdaNavigate", "DefensaConsumidor")'
+                               @onclick:preventDefault><i class="far fa-handshake"></i><span>Defensa al consumidor</span><i class="arrow mdi mdi-chevron-right"></i></a>
+                        </li>
+                    }
+                    @if (hasTramites)
+                    {
+                        <li class="collection-item">
+                            <a href="#" class="waves-effect" @onclick='() => JS.InvokeVoidAsync("gdaNavigate", "Tramites")'
+                               @onclick:preventDefault><i class="fas fa-list"></i><span>Guía de Trámites</span><i class="arrow mdi mdi-chevron-right"></i></a>
+                        </li>
+                    }
+                    @if (hasMisGestiones)
+                    {
+                        <li class="collection-item">
+                            <a href="#" class="waves-effect" @onclick='() => JS.InvokeVoidAsync("gdaNavigate", "MisGestiones")'
+                               @onclick:preventDefault><i class="far fa-file-alt"></i><span>Mis Gestiones</span><i class="arrow mdi mdi-chevron-right"></i></a>
+                        </li>
+                    }
+
+                </ul>
+            }
+
+        </div>
+
+        <div id="ServiciosDigitales" class="card card-body">
+
+            <div class="container">
+
+                <div class="row mb3 mt0">
+                    <div class="col s12 pad-0">
+                        <h5 class="sec-tit  ">Servicios Digitales</h5>
+                        <span></span>
+                    </div>
+                </div>
+
+                @if (isLoading)
+                {
+                    <div class="row">
+
+                        <div class="col-lg-12" style="padding:15px">
+
+                            <div class="ngplaceholder ngplaceholder-label"></div>
+                            <div class="ngplaceholder ngplaceholder-text"></div>
+
+                            <div class="ngplaceholder ngplaceholder-label"></div>
+                            <div class="ngplaceholder ngplaceholder-text"></div>
+
+                        </div>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="row" style="padding-top: 0.2rem; margin-bottom: 0px;">
+
+                        @if (hasJuzgado)
+                        {
+                            <div class="col s4 div-boton-redondo">
+                                <div style="display: inline-block; text-align: center">
+                                    <div style="display: flex; flex-wrap: wrap; justify-content: center">
+                                        <a href="#" @onclick='() => JS.InvokeVoidAsync("gdaNavigate", "JuzgadoFaltas")'
+                                           @onclick:preventDefault>
+                                            <div class="boton-redondo"><i class="fas fa-gavel boton-redondo-icono"></i></div>
+                                        </a>
+                                    </div>
+                                    <div style="float: none" class="boton-redondo-texto">Multas</div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (hasMedido)
+                        {
+                            <div class="col s4 div-boton-redondo">
+                                <div style="display: inline-block; text-align: center">
+                                    <div style="display: flex; flex-wrap: wrap; justify-content: center">
+                                        <a href="#" @onclick='() => JS.InvokeVoidAsync("gdaNavigate", "Siem")'
+                                           @onclick:preventDefault>
+                                            <div class="boton-redondo"><i class="fas fa-car boton-redondo-icono"></i></div>
+                                        </a>
+                                    </div>
+                                    <div class="boton-redondo-texto">E. Medido</div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (hasHabilitaciones)
+                        {
+                            <div class="col s4 div-boton-redondo">
+                                <div style="display: inline-block; text-align: center">
+                                    <div style="display: flex; flex-wrap: wrap; justify-content: center">
+                                        <a href="#" @onclick='() => JS.InvokeVoidAsync("gdaNavigate", "Comercios")'
+                                           @onclick:preventDefault>
+                                            <div class="boton-redondo"><i class="fas fa-file-contract boton-redondo-icono"></i></div>
+                                        </a>
+                                    </div>
+                                    <div class="boton-redondo-texto">Comercios</div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (hasObrasParticulares)
+                        {
+                            <div class="col s4 div-boton-redondo">
+                                <div style="display: inline-block; text-align: center">
+                                    <div style="display: flex; flex-wrap: wrap; justify-content: center">
+                                        <a href="#" @onclick='() => JS.InvokeVoidAsync("gdaNavigate", "ObrasParticulares")'
+                                           @onclick:preventDefault>
+                                            <div class="boton-redondo"><i class="fas fa-pencil-ruler boton-redondo-icono"></i></div>
+                                        </a>
+                                    </div>
+                                    <div class="boton-redondo-texto">Obras particulares</div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (hasFarmacias)
+                        {
+                            <div class="col s4 div-boton-redondo">
+                                <div style="display: inline-block; text-align: center">
+                                    <div style="display: flex; flex-wrap: wrap; justify-content: center">
+                                        <a href="#" @onclick='() => JS.InvokeVoidAsync("gdaNavigate", "Farmacias")'
+                                           @onclick:preventDefault>
+                                            <div class="boton-redondo"><i class="fas fa-briefcase-medical boton-redondo-icono"></i></div>
+                                        </a>
+                                    </div>
+                                    <div class="boton-redondo-texto">Farmacias</div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (hasOjosAlerta)
+                        {
+                            <div class="col s4 div-boton-redondo">
+                                <div style="display: inline-block; text-align: center">
+                                    <div style="display: flex; flex-wrap: wrap; justify-content: center">
+                                        @{
+                                            string url = "https://api.whatsapp.com/send?phone=" + CelularOjosAlerta + "&text=&target=browser";
+                                        }
+                                        <a href="@url">
+                                            <div class="boton-redondo"><i class="fas fa-eye boton-redondo-icono"></i></div>
+                                        </a>
+                                    </div>
+                                    <div class="boton-redondo-texto">Ojos en Alerta</div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (hasTelefonosUtiles)
+                        {
+                            <div class="col s4 div-boton-redondo item-servicios">
+                                <div style="display: inline-block; text-align: center">
+                                    <div style="display: flex; flex-wrap: wrap; justify-content: center">
+                                        <a href="#" @onclick='() => JS.InvokeVoidAsync("gdaNavigate", "Contacto")'
+                                           @onclick:preventDefault>
+                                            <div class="boton-redondo"><i class="fas fa-phone boton-redondo-icono"></i></div>
+                                        </a>
+                                    </div>
+                                    <div class="boton-redondo-texto">Tel. Útiles</div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (hasBoleteria)
+                        {
+                            <div class="col s4 div-boton-redondo item-servicios">
+                                <div style="display: inline-block; text-align: center">
+                                    <div style="display: flex; flex-wrap: wrap; justify-content: center">
+                                        <a href="#" @onclick='() => JS.InvokeVoidAsync("gdaNavigate", "Boleteria")'
+                                           @onclick:preventDefault>
+                                            <div class="boton-redondo"><i class="fas fa-ticket-alt boton-redondo-icono"></i></div>
+                                        </a>
+                                    </div>
+                                    <div class="boton-redondo-texto">Boletería</div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (hasDillo)
+                        {
+                            <div class="col s4 div-boton-redondo item-servicios">
+                                <div style="display: inline-block; text-align: center">
+                                    <div style="display: flex; flex-wrap: wrap; justify-content: center">
+                                        <a href="#" @onclick='() => JS.InvokeVoidAsync("gdaNavigate", "Dillo")'
+                                           @onclick:preventDefault>
+                                            <div class="boton-redondo"><i class="far fa-hand-paper boton-redondo-icono"></i></div>
+                                        </a>
+                                    </div>
+                                    <div class="boton-redondo-texto">Lengua de señas</div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (hasTaxi)
+                        {
+                            <div class="col s4 div-boton-redondo item-servicios">
+                                <div style="display: inline-block; text-align: center">
+                                    <div style="display: flex; flex-wrap: wrap; justify-content: center">
+                                        <a href="#" @onclick='() => JS.InvokeVoidAsync("gdaNavigate", "HabilitacionesTaxis")'
+                                           @onclick:preventDefault>
+                                            <div class="boton-redondo"><i class="fa fa-car boton-redondo-icono"></i></div>
+                                        </a>
+                                    </div>
+                                    <div class="boton-redondo-texto">Taxis</div>
+                                </div>
+                            </div>
+                        }
+
+                        @* Servicios *@
+
+                            <div class="col s4 div-boton-redondo item-servicios">
+                                <div style="display: inline-block; text-align: center">
+                                    <div style="display: flex; flex-wrap: wrap; justify-content: center">
+                                       
+                                                    <div class="boton-redondo"><i class="boton-redondo-icono"></i></div>
+                                          
+                                    </div>
+                                    <div class="boton-redondo-texto">Descripcion</div>
+                                </div>
+                            </div>
+                       
+
+                    </div>
+                }
+
+            </div>
+
+            @if (!isLoading)
+            {
+                <div style="padding-bottom: 1rem; padding-top: 0.5rem;" class="row">
+                    <div class="col s12">
+                        <a style="width: 100%" href="#" class="waves-effect waves-light btn theme-bg-btn" @onclick="OnClickServicios"><i class="fas fa-server"></i>&nbsp; Todos los servicios</a>
+                    </div>
+                </div>
+            }
+
+
+        </div>
+
+        @if (hasBotonesEmergencia)
+        {
+            <div class="card card-body">
+
+                <div class="container">
+
+                    <div class="row mb3 mt0">
+                        <div class="col s12 pad-0">
+                            <h5 class="sec-tit  ">Llamados de Emergencia!</h5>
+                        </div>
+                    </div>
+
+                    @if (!hasBotonPoliciaLocal)
+                    {
+                        <div class="row" style="padding-bottom: 1rem">
+
+                            <div class="col s4">
+                                <a @onclick="OnClickPolicia"><img src="assets/images/policia.png?v1.3" style="width: 100%" /></a>
+                            </div>
+
+                            <div class="col s4">
+                                <a @onclick="OnClickPolicia"><img src="assets/images/Ambulancia.png?v1.3" style="width: 100%" /></a>
+                            </div>
+
+                            <div class="col s4">
+                                <a @onclick="OnClickPolicia"><img src="assets/images/Bomberos.png?v1.3" style="width: 100%" /></a>
+                            </div>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div style="padding-bottom: 1rem">
+
+                            <div class="row">
+
+                                <div class="col s1"></div>
+
+                                <div class="col s5">
+                                    <a @onclick="OnClickPolicia"><img src="assets/images/policia.png?v1.3" style="width: 100%" /></a>
+                                </div>
+
+                                <div class="col s5">
+                                    <a @onclick="OnClickPolicia"><img src="assets/images/PoliciaLocal.png?v1.3" style="width: 100%" /></a>
+                                </div>
+
+                                <div class="col s1"></div>
+
+                            </div>
+
+                            <div class="row mt-2">
+
+                                <div class="col s1"></div>
+
+                                <div class="col s5">
+                                    <a @onclick="OnClickPolicia"><img src="assets/images/Ambulancia.png?v1.3" style="width: 100%" /></a>
+                                </div>
+
+                                <div class="col s5">
+                                    <a @onclick="OnClickPolicia"><img src="assets/images/Bomberos.png?v1.3" style="width: 100%" /></a>
+                                </div>
+
+                                <div class="col s1"></div>
+
+                            </div>
+
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+        }
+
+		
+        @if (hasNovedades)
+        {
+            <div class="Novedades">
+
+                <div class="container">
+
+                    <div class="row mb0 mt0">
+                        <div class="col s12 pad-0">
+                            <h5 class="bot-20 sec-tit  ">Últimas Novedades</h5>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="carousel-container" id="touch-carousel">
+                    <div class="carousel-track" style="transform: translateX(@(-currentIndex * 100)%)">
+                        @foreach (var item in items)
+                        {
+                            string link = "Novedad?Id=" + item.Id;
+
+                            <div class="carousel-item" @onclick="() => _Navigation.NavigateTo(link)">
+
+                                <img src="@item.ImageUrl" alt="@item.Description" />
+                                <div class="item-description">@item.Description</div>
+
+                            </div>
+                        }
+                    </div>
+
+                    <div class="carousel-indicators">
+                        @for (int i = 0; i < items.Count; i++)
+                        {
+                            var index = i;
+                            <span class="indicator @(currentIndex == index ? "active" : "")"
+                                  @onclick="() => GoToSlide(index)"></span>
+                        }
+                    </div>
+
+                    <button class="carousel-control prev" @onclick="() => PreviousSlide()">❮</button>
+                    <button class="carousel-control next" @onclick="() => NextSlide()">❯</button>
+
+                </div>
+
+            </div>
+        }
+
+		
+        <div style="height:100px;"></div>
+
+    </div>
+
+</div>
+
+@code {
+
+    private string version = "1";
+
+    private IJSObjectReference? _module;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is not null)
+        {
+            await _module.DisposeAsync();
+        }
+    }
+}
+
+@code {
+
+    private int currentIndex = 0;
+    private DotNetObjectReference<Index> objRef;
+
+    [JSInvokable]
+    public void HandleSwipe(string direction)
+    {
+        if (direction == "left")
+        {
+            NextSlide();
+        }
+        else if (direction == "right")
+        {
+            PreviousSlide();
+        }
+
+        StateHasChanged();
+    }
+
+    private void NextSlide()
+    {
+        currentIndex = (currentIndex + 1) % items.Count;
+    }
+
+    private void PreviousSlide()
+    {
+        currentIndex = (currentIndex - 1 + items.Count) % items.Count;
+    }
+
+    private void GoToSlide(int index)
+    {
+        currentIndex = index;
+    }
+
+    public void Dispose()
+    {
+        objRef?.Dispose();
+    }
+
+    public class CarouselItem
+    {
+        public int Id { get; set; }
+        public string ImageUrl { get; set; }
+        public string Description { get; set; }
+    }
+
+	
+    #region entidades
+
+
+    private bool hasReclamos = true;
+    private bool hasTurnos = true;
+    private bool hasTramites = true;
+    private bool hasDenuncias = true;
+    private bool hasTelefonosUtiles = true;
+    private bool hasFarmacias = true;
+    private bool hasMisGestiones = true;
+    private bool hasLicencia = true;
+    private bool hasMedido = true;
+    private bool hasHabilitaciones = true;
+    private bool hasOjosAlerta = true;
+    private bool hasBoleteria = true;
+    private bool hasDillo = true;
+    private bool hasTaxi = true;
+    private bool hasJuzgado = true;
+    private bool hasBotonesEmergencia = true;
+    private bool hasBotonPoliciaLocal = true;
+    private bool hasNovedades = false;
+    private bool hasDefensaConsumidor = false;
+    private bool hasSeguridadCiudadana = false;
+    private bool hasObrasParticulares = false;
+    private bool hasBotonPanico = false;
+    private string url;
+    private int NivelUsuario = 0;
+    private bool Nivel1Completo = false;
+    private bool EmailValidado = false;
+    private bool TelefonoValidado = false;
+    string urlEncode;
+
+	
+    private List<CarouselItem> items = new List<CarouselItem>();
+    DataTable dtPagosPendientes = new();
+    DataTable dtDocumentosPendientes = new();
+    DataTable dtDocumentosPendientesComercio = new();
+    DataTable dtDocumentosPendientesProfesional = new();
+    bool isLoading = true;
+    private bool MuestraNivelLoginEnIndex = true;
+    bool RecomiendaActualizarAPP = false;
+    private bool Pendiente2FA = false;
+    private bool Muestra2FAEnIndex = true;
+    string AppNuevaNovedades = "";
+    string AppNuevaAppSistemaOperativo = "";
+    string AppNuevaLinkStore = "";
+    string fromApp = "";
+    string CelularOjosAlerta = "";
+    decimal totalPagos = 0;
+
+
+    #endregion
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("es-ES");
+
+
+            Pendiente2FA = true;
+
+            url = "";
+
+            version = "1";
+
+			
+            hasBotonPoliciaLocal = true;
+
+			
+            hasBotonPanico = true;
+
+			
+
+			
+
+            hasNovedades = true;
+
+            var item = new CarouselItem();
+            item.Id = 1;
+            item.Description = "d";
+            item.ImageUrl = url + "/uploads/noticias/web/policia.png";
+            items.Add(item);
+
+			
+
+            Muestra2FAEnIndex = true;
+
+			
+			
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+        StateHasChanged();
+
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (_module == null)
+                _module = await JS.InvokeAsync<IJSObjectReference>("import", $"./js/main.js?v=1");
+            await _module.InvokeVoidAsync("initTemplate");
+
+            try
+            {
+                objRef = DotNetObjectReference.Create(this);
+                await JS.InvokeVoidAsync("initTouchCarousel", "touch-carousel", objRef);
+            }
+            catch (Exception ex)
+            {
+            }
+            finally
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
+        }
+
+
+    }
+
+
+    protected async Task OnClickIr2FA()
+    {
+        _Navigation.NavigateTo("Configurar2FA", false);
+    }
+
+    protected async Task OnIrAEditarPerfil()
+    {
+        _Navigation.NavigateTo("PerfilEdit", false);
+    }
+    protected async Task OnClickIrValidarMail()
+    {
+        _Navigation.NavigateTo("ConfigurarEmail", false);
+    }
+
+    protected async Task OnClickPolicia()
+    {
+        await redirectBoton(1);
+    }
+    protected async Task OnClickPoliciaLocal()
+    {
+        await redirectBoton(7);
+    }
+    protected async Task OnClickBomberos()
+    {
+        await redirectBoton(2);
+    }
+    protected async Task OnClickAmbulancia()
+    {
+        await redirectBoton(3);
+    }
+
+    protected async Task OnClickGenero()
+    {
+        await redirectBoton(5);
+    }
+
+    private async Task redirectBoton(int IdBoton)
+    {
+       
+    }
+    private void OnClickComercios()
+    {
+        _Navigation.NavigateTo("Comercios", true);
+    }
+    private void OnClickMedido()
+    {
+        _Navigation.NavigateTo("Siem", true);
+    }
+    private void OnClickReclamos()
+    {
+        _Navigation.NavigateTo("Reclamos", true);
+    }
+    private void OnClickTurnos()
+    {
+        _Navigation.NavigateTo("Turnos", true);
+    }
+    private void OnClickTramites()
+    {
+        _Navigation.NavigateTo("Tramites", true);
+    }
+    private void OnClickMultas()
+    {
+        _Navigation.NavigateTo("JuzgadoFaltas", true);
+    }
+    private void OnClickGestiones()
+    {
+        _Navigation.NavigateTo("MisGestiones", true);
+    }
+    private void OnClickFarmacias()
+    {
+        _Navigation.NavigateTo("Farmacias", true);
+    }
+    private void OnClickTelefonos()
+    {
+        _Navigation.NavigateTo("Contacto", true);
+    }
+
+    private void OnClickServicio(string url)
+    {
+        _Navigation.NavigateTo(url, true);
+    }
+
+    private void OnClickObrasParticulares()
+    {
+        _Navigation.NavigateTo("ObrasParticulares", true);
+    }
+    private void OnClickServicios()
+    {
+        _Navigation.NavigateTo("Servicios", true);
+    }
+}
