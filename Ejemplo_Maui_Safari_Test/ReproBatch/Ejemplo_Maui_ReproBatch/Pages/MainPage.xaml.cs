@@ -32,7 +32,8 @@ public partial class MainPage : ContentPage
         //webView.Source = "https://aplicada.somee.com/";
         //webView.Source = "https://app.gobdigital.com.ar/homologacion/index?app=true&appVersion=1";
         //webView.Source = "https://aplicada.somee.com";
-        webView.Source = "https://app.gobdigital.com.ar/homologacion/Index?token=29759820&Login=3pQu8S%2bj%2bZ27yjzeT2PptSPggySaqBTZf64XU0d92ro%3d&Auth=Auth&fromApp=true";
+        //webView.Source = "https://app.gobdigital.com.ar/homologacion/Index?token=29759820&Login=3pQu8S%2bj%2bZ27yjzeT2PptSPggySaqBTZf64XU0d92ro%3d&Auth=Auth&fromApp=true";
+        webView.Source = "https://aplicada.somee.com?token=29759820&Login=3pQu8S%2bj%2bZ27yjzeT2PptSPggySaqBTZf64XU0d92ro%3d&Auth=Auth&fromApp=true";
     }
 
     private void WebView_Navigating(object sender, WebNavigatingEventArgs e)
